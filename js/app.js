@@ -1,30 +1,14 @@
 ;
 (function (window, Vue) {
-	// const todos = [
-	// {
-	// 	id: 1,
-	// 	title: '吃饭',
-	// 	done: true
-	// },
-	// {
-	// 	id: 1,
-	// 	title: '睡觉',
-	// 	done: false
-	// },
-	// {
-	// 	id: 1,
-	// 	title: '打代码',
-	// 	done: true
-	// },
-	// {
-	// 	id: 1,
-	// 	title: '打豆豆',
-	// 	done: false
-	// }
-	// ]
 
-	const todos = JSON.parse(window.localStorage.getItem('todos')) || []
-	const app = new Vue({
+	const todos = JSON.parse(window.localStorage.getItem('todos') || [])
+  
+  Vue.directive('focus',{
+    inserted:function(el){
+      el.focus()
+    }
+  })
+  const app = new Vue({
 		el: '#todoapp',
 		data: {
 			todos, //任务列表数据源
@@ -70,8 +54,14 @@
 			},
 
 			// 删除单个任务项
-			removeTodo(index) {
-				this.todos.splice(index, 1);
+			removeTodo(item) {
+				const index = this.todos.findIndex(function (t) {
+					return t.id === item.id
+				})
+
+				if (index !== -1) {
+					this.todos.splice(index, 1)
+				}
 			},
 
 			// 获取编辑样式
@@ -158,9 +148,24 @@
 			todos: {
 				handler: function () {
 					window.localStorage.setItem('todos', JSON.stringify(this.todos))
-				},
+          
+          window.onhashchange()
+        },
 				deep: true
 			},
+    },
+    directives: {
+			// 对象的 key 就是自定义指令的名字
+			// 选项对象用来配置指令的声明周期钩子函数
+			'todo-focus': {
+				update (el, binding) {
+					// 找到双击的 el
+					// console.log('update', binding.value)
+					if (binding.value === true) {
+						el.focus()
+					}
+				}
+			}
 		}
 	})
 
